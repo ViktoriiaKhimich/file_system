@@ -2,43 +2,30 @@ import React, { useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import Box from "@mui/material/Box";
 import { TextField, Button } from "@mui/material";
-import { edit, redo, undo } from "../../redux/fileSlice";
+import { edit } from "../../redux/fileSlice";
 import { v4 } from "uuid";
-
-const findParent = (fileSystem, path) => {
-  if (!path.length) return fileSystem;
-  let pathToTarget = fileSystem;
-  path.forEach((id) => {
-    if (id !== "0")
-      pathToTarget = pathToTarget.children.find((element) => element.id === id);
-  });
-  return pathToTarget;
-};
 
 const addOne = (parent, target) => {
   if (!target.path.length) return parent;
   return parent.children.find((element) => element.id === target.id);
 };
 
-const deleteOne = (parent, target) =>
-  parent.children.filter((element) => element.id !== target.id);
+export const CreateFileForm = ({ findParent, currentFolderOrFile }) => {
 
-export const CreateFileForm = () => {
-  const currentFolderOrFile = useSelector(
-    (state) => state.filesystem.currentFolderOrFile,
-    shallowEqual
-  );
-  const fileSystem = useSelector(
-    (state) => state.filesystem.folders,
-    shallowEqual
-  );
-  const dispatch = useDispatch();
+  const [btnType, setBtnType] = useState("");
+
   const [inputValues, setInputValues] = useState({
     folderName: "",
     fileName: "",
     fileText: "",
   });
-  const [btnType, setBtnType] = useState("");
+
+  const fileSystem = useSelector(
+    (state) => state.filesystem.folders,
+    shallowEqual
+  );
+
+  const dispatch = useDispatch();
 
   if (!currentFolderOrFile) return null;
 
@@ -69,16 +56,6 @@ export const CreateFileForm = () => {
         };
         placeToAdd.children = [...placeToAdd.children, { ...newFile }];
         dispatch(edit(copy));
-        break;
-      case "delete":
-        parentFolder.children = deleteOne(parentFolder, currentFolderOrFile);
-        dispatch(edit(copy));
-        break;
-      case "undo":
-        dispatch(undo());
-        break;
-      case "redo":
-        dispatch(redo());
         break;
     }
   };
@@ -135,46 +112,29 @@ export const CreateFileForm = () => {
             rowsmax={Infinity}
           />
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex" }}>
           {currentFolderOrFile.type === "folder" && (
-            <>
+            <div>
               <Button
                 onClick={() => setBtnType("create_folder")}
                 type="submit"
                 variant="contained"
+                color='success'
+                style={{ width: "194px", marginRight: '25px' }}
               >
                 Create folder
               </Button>
               <Button
                 onClick={() => setBtnType("create_file")}
                 type="submit"
+                color='success'
                 variant="contained"
+                style={{ width: "194px" }}
               >
                 Create file
               </Button>
-            </>
+            </div>
           )}
-          <Button
-            onClick={() => setBtnType("delete")}
-            type="submit"
-            variant="contained"
-          >
-            Delete
-          </Button>
-          <Button
-            onClick={() => setBtnType("undo")}
-            type="submit"
-            variant="contained"
-          >
-            Undo
-          </Button>
-          <Button
-            onClick={() => setBtnType("redo")}
-            type="submit"
-            variant="contained"
-          >
-            Redo
-          </Button>
         </div>
       </Box>
     </>

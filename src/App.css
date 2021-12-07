@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiTreeItem-content {
+    border: 1px solid #81d4fa !important;
+    border-radius: 5px;
+    padding: 0 5px;
+    background-color: #e1f5fe;
+}
